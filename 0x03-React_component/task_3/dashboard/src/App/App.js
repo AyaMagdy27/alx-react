@@ -9,6 +9,8 @@ import Notifications from '../Notifications/Notifications'
 import PropTypes from 'prop-types';
 import CourseList from '../CourseList/CourseList';
 import { getLatestNotification } from '../utils/utils';
+import BodySectionWithMarginBotom from '../BodySection/BodySectionWithMarginBottom';
+import BodySection from '../BodySection/BodySection';
 
 class App extends Component {
   constructor(props) {
@@ -27,6 +29,26 @@ class App extends Component {
         {id: 3, html: {__html: getLatestNotification()}, type: "urgent"},
       ],
     };
+
+    this.logOut = props.logOut;
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
+  handleKeyDown(event) {
+    event.preventDefault();
+    if (event.ctrlKey && event.key === 'h') {
+      //console.log(event)
+      alert('Logging you out');
+      this.logOut();
+    }
   }
 
   render() {
@@ -38,7 +60,23 @@ class App extends Component {
         <Notifications listNotifications={listNotifications}/>
         <div className='App'>
           <Header />
-          {isLoggedIn ? <CourseList listCourses={listCourses} /> : <Login />}
+          {
+            isLoggedIn ? 
+            <BodySectionWithMarginBotom title='Course list'>
+              <CourseList listCourses={listCourses} /> 
+            </BodySectionWithMarginBotom>
+            
+            : 
+            <BodySectionWithMarginBotom title='Log in to continue'>
+              <Login />
+            </BodySectionWithMarginBotom>
+            
+          }
+          <BodySection>
+            <BodySectionWithMarginBotom title='News from the School'>
+              <p>This paragraph is about news from the school</p>
+            </BodySectionWithMarginBotom>
+          </BodySection>
           <Footer />
         </div>
       </>
@@ -47,11 +85,13 @@ class App extends Component {
 }
 
 App.defaultProps = {
-  isLoggedIn: false
+  isLoggedIn: false,
+  logOut: () => {}
 };
 
 App.propTypes = {
   isLoggedIn: PropTypes.bool,
+  logOut: PropTypes.func
 }
 
 export default App;
